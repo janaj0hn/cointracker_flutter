@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:indiaditstask/controller/coin_controller.dart';
+import 'package:indiaditstask/ui/watchlist_screen.dart';
 
 import 'package:indiaditstask/utilis/coin_card.dart';
 
@@ -73,6 +74,48 @@ class _HomeScreenState extends State<HomeScreen> {
               });
             },
             icon: Icon(isSearch ? Icons.close : Icons.search_outlined),
+          ),
+          AnimatedBuilder(
+            animation: apiController,
+            builder: (context, child) {
+              return Stack(
+                children: [
+                  IconButton(
+                    onPressed: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              WatchListScreen(apiController: apiController),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.favorite_outline, size: 28),
+                  ),
+
+                  if (apiController.watchList.isNotEmpty)
+                    Positioned(
+                      right: 5,
+                      top: 5,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.black,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          '${apiController.watchList.length}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -188,7 +231,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             itemBuilder: (context, index) {
                               final coindata = coins[index];
 
-                              return CoinCard(coin: coindata, index: index);
+                              return CoinCard(
+                                coin: coindata,
+                                index: index,
+                                apiController: apiController,
+                              );
                             },
                           );
                         },

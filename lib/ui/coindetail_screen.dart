@@ -5,15 +5,22 @@ import 'package:indiaditstask/utilis/coinchart.dart';
 
 class CoinDetailScreen extends StatefulWidget {
   final CoinModel coin;
+  final ApiController apiController;
 
-  const CoinDetailScreen({super.key, required this.coin});
+  const CoinDetailScreen({
+    super.key,
+    required this.coin,
+    required this.apiController,
+  });
 
   @override
   State<CoinDetailScreen> createState() => _CoinDetailScreenState();
 }
 
+@override
+State<CoinDetailScreen> createState() => _CoinDetailScreenState();
+
 class _CoinDetailScreenState extends State<CoinDetailScreen> {
-  ApiController apiController = ApiController();
   bool isLoading = true;
   bool hasError = false;
   Future<void> getChartData() async {
@@ -23,7 +30,7 @@ class _CoinDetailScreenState extends State<CoinDetailScreen> {
     });
 
     try {
-      await apiController.getChartData(widget.coin.id);
+      await widget.apiController.getChartData(widget.coin.id);
     } catch (e) {
       hasError = true;
     }
@@ -44,7 +51,32 @@ class _CoinDetailScreenState extends State<CoinDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        actions: [],
+        actions: [
+          IconButton(
+            onPressed: () {
+              if (widget.apiController.isInWatchList(widget.coin)) {
+                widget.apiController.removeFromWatchList(widget.coin);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Removed from watchlist')),
+                );
+              } else {
+                widget.apiController.addToWatchList(widget.coin);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Added to watchlist')),
+                );
+              }
+
+              setState(() {});
+            },
+            icon: Icon(
+              widget.apiController.isInWatchList(widget.coin)
+                  ? Icons.favorite
+                  : Icons.favorite_outline,
+            ),
+          ),
+        ],
         backgroundColor: Colors.amber,
         title: Text(widget.coin.name),
       ),
@@ -99,7 +131,7 @@ class _CoinDetailScreenState extends State<CoinDetailScreen> {
             const SizedBox(height: 15),
 
             CoinChart(
-              prices: apiController.chartData,
+              prices: widget.apiController.chartData,
               isLoading: isLoading,
               hasError: hasError,
             ),
