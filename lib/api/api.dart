@@ -1,30 +1,17 @@
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
 import 'package:indiaditstask/model/coin_model.dart';
 
 class ApiService {
-  static const String apiKey = 'CG-RpMb1cMz2HEKsb8isUhqE8ab';
-
-  static const String baseUrl = 'https://api.coingecko.com/api/v3';
+  static const String baseUrl = 'http://10.0.2.2:3000';
 
   Future<List<CoinModel>> getData() async {
-    final response = await http.get(
-      Uri.parse(
-        '$baseUrl/coins/markets'
-        '?vs_currency=usd'
-        '&order=market_cap_desc'
-        '&per_page=100'
-        '&page=1'
-        '&sparkline=false'
-        '&x_cg_demo_api_key=$apiKey',
-      ),
-    );
+    final response = await http.get(Uri.parse('$baseUrl/api/coins'));
 
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
+      final data = jsonDecode(response.body);
 
-      return data.map((json) => CoinModel.fromJson(json)).toList();
+      return List<CoinModel>.from(data.map((coin) => CoinModel.fromJson(coin)));
     } else {
       throw Exception('Failed to load coins');
     }
@@ -32,12 +19,7 @@ class ApiService {
 
   Future<List<List<dynamic>>> getChartData(String coinId) async {
     final response = await http.get(
-      Uri.parse(
-        'https://api.coingecko.com/api/v3/coins/$coinId/market_chart'
-        '?vs_currency=usd'
-        '&days=7'
-        '&x_cg_demo_api_key=$apiKey',
-      ),
+      Uri.parse('$baseUrl/api/coins/$coinId/chart'),
     );
 
     if (response.statusCode == 200) {
